@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Cup 2026 — A Forecast You Can Interrogate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1B1D1B; --paper:#FFFFFF; --emerald:#4E9A6E; --emerald-dark:#3A7A56;
+  --mist:#F2F4F2; --line:#DEE3DE; --faint:#8A918A;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:860px;margin:0 auto;padding:0 24px}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:600}
+h1,h2{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.01em}
+h1{font-size:clamp(34px,6vw,54px);line-height:1.08;margin:14px 0 18px}
+h1 em{font-style:italic;color:var(--emerald-dark)}
+h2{font-size:26px;margin-bottom:6px}
+section{padding:52px 0;border-top:1px solid var(--line)}
+header.hero{padding:64px 0 52px;border-top:none}
+.lede{font-size:17px;max-width:600px;color:#3a3d3a}
+.sub{font-size:14px;color:var(--faint);margin-bottom:34px;max-width:620px}
+
+/* tick strips */
+.oddsrow{display:grid;grid-template-columns:110px 1fr 74px;gap:14px;align-items:center;margin:14px 0}
+.team{font-weight:600;font-size:15px}
+.pct{font-variant-numeric:tabular-nums;font-weight:600;text-align:right;font-size:15px}
+.pct small{display:block;font-weight:400;font-size:11px;color:var(--faint)}
+.strip{display:flex;gap:2px;height:26px}
+.tick{flex:1;background:var(--mist);border-radius:1px;transition:background .5s ease}
+.tick.on{background:var(--emerald)}
+.tick.out{background:var(--mist)}
+.dead .tick.on{background:#C7CDC7}
+.dead .team,.dead .pct{color:var(--faint)}
+.legend{font-size:12px;color:var(--faint);margin-top:10px}
+.legend b{color:var(--emerald-dark)}
+
+/* bracket */
+.bracket{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:26px 0 8px}
+@media(max-width:640px){.bracket{grid-template-columns:1fr}}
+.match{border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.match .tag{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);font-weight:600;margin-bottom:10px;display:flex;justify-content:space-between}
+.played .tag .state{color:var(--emerald-dark)}
+.row{display:flex;justify-content:space-between;padding:7px 2px;font-weight:500;font-size:15px}
+.row .score{font-variant-numeric:tabular-nums}
+.winner{font-weight:600}
+.loser{color:var(--faint)}
+.chip{display:flex;justify-content:space-between;width:100%;padding:10px 12px;margin:6px 0;border:1.5px solid var(--line);border-radius:8px;background:var(--paper);font:inherit;font-weight:500;font-size:15px;cursor:pointer;transition:border-color .2s,background .2s}
+.chip:hover{border-color:var(--emerald)}
+.chip:focus-visible{outline:2px solid var(--emerald);outline-offset:2px}
+.chip[aria-pressed="true"]{border-color:var(--emerald-dark);background:#EDF4EF;font-weight:600}
+.chip .p{color:var(--faint);font-variant-numeric:tabular-nums}
+.reset{background:none;border:none;color:var(--emerald-dark);font:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:4px 0;text-decoration:underline;text-underline-offset:3px}
+.finalline{margin-top:14px;padding:14px 18px;background:var(--mist);border-radius:10px;font-size:14.5px}
+.finalline b{font-variant-numeric:tabular-nums}
+
+/* story cards */
+.duel{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:24px}
+@media(max-width:640px){.duel{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:10px;padding:20px}
+.card h3{font-family:'Fraunces',serif;font-size:18px;margin-bottom:6px}
+.card .verdict{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-top:12px}
+.right .verdict{color:var(--emerald-dark)}
+.wrong .verdict{color:#A15B3B}
+.card p{font-size:14.5px;color:#3a3d3a}
+.bignum{font-family:'Fraunces',serif;font-size:34px;font-weight:600;margin:6px 0 2px;font-variant-numeric:tabular-nums}
+
+/* stats + table */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:24px 0}
+@media(max-width:640px){.stats{grid-template-columns:1fr}}
+.stat .bignum{font-size:38px}
+.stat .cap{font-size:13px;color:var(--faint)}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:18px}
+th{text-align:left;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:8px 6px;border-bottom:1px solid var(--line)}
+td{padding:9px 6px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+tr.mine td{font-weight:600}
+.note{font-size:13.5px;color:var(--faint);margin-top:14px;max-width:640px}
+footer{padding:40px 0 64px;border-top:1px solid var(--line);font-size:13px;color:var(--faint)}
+footer a{color:var(--emerald-dark)}
+@media(prefers-reduced-motion:reduce){.tick{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">Model snapshot · locked July 14, 2026 · #WhatFariatSays</div>
+  <h1>Who wins the World Cup?<br><em>Probably</em> Spain. Probably.</h1>
+  <p class="lede">A forecast built from 49,505 matches of history by someone whose football knowledge ends at goals and red cards. Every number below comes from one model, and you can interrogate it: change the bracket and watch the odds obey.</p>
+</header>
+
+<section>
+  <div class="eyebrow">Forecast</div>
+  <h2 id="oddstitle">Title chances, with Spain through to the final</h2>
+  <p class="sub">Each strip is 100 ticks. One tick, one percent. Filled ticks are the tournaments a team wins if you could replay this one over and over. The empty ticks are the point.</p>
+  <div id="odds"></div>
+  <p class="legend">Even the favorite holds barely more than <b>half</b> the strip. That is what "favorite" honestly means.</p>
+</section>
+
+<section>
+  <div class="eyebrow">What-if</div>
+  <h2>Condition the bracket yourself</h2>
+  <p class="sub">Semifinal one is history. Semifinal two hasn't kicked off. Pick a winner and the title odds above recompute, live, from the model's matchup probabilities. This is the entire lesson of probabilistic forecasting in one click.</p>
+  <div class="bracket">
+    <div class="match played">
+      <div class="tag"><span>Semifinal 1 · July 14</span><span class="state">Played</span></div>
+      <div class="row winner"><span>Spain</span><span class="score">2</span></div>
+      <div class="row loser"><span>France</span><span class="score">0</span></div>
+      <div class="note" style="margin-top:10px">Model said 52/48 Spain. Barely a lean.</div>
+    </div>
+    <div class="match">
+      <div class="tag"><span>Semifinal 2 · July 15</span><span class="state" id="sf2state">Model-weighted</span></div>
+      <button class="chip" id="pickArg" aria-pressed="false" onclick="pick('ARG')"><span>Argentina wins</span><span class="p">62.8%</span></button>
+      <button class="chip" id="pickEng" aria-pressed="false" onclick="pick('ENG')"><span>England wins</span><span class="p">37.2%</span></button>
+      <button class="reset" onclick="pick(null)">Reset — let the model weigh both</button>
+    </div>
+  </div>
+  <div class="finalline" id="finalline"></div>
+</section>
+
+<section>
+  <div class="eyebrow">First live test</div>
+  <h2>Two models walked into a semifinal</h2>
+  <p class="sub">I built a quick comparison model using only this tournament's stats. It disagreed with the main model about France–Spain. Only one of them respected what it didn't know.</p>
+  <div class="duel">
+    <div class="card right">
+      <h3>The calibrated one</h3>
+      <div class="bignum">52%</div>
+      <p>Spain, by a whisker. Trained on 27,000 matches, it looked at two elite teams on neutral ground and refused to pretend it saw more than a coin flip.</p>
+      <div class="verdict">Said "too close to call" — honest</div>
+    </div>
+    <div class="card wrong">
+      <h3>The confident one</h3>
+      <div class="bignum">58%</div>
+      <p>France, comfortably — powered by goal stats inflated against a softer schedule. Six matches of raw numbers, no context for who they came against.</p>
+      <div class="verdict">Picked France — Spain won 2–0</div>
+    </div>
+  </div>
+  <p class="note">One result proves nothing about either model. But it is a clean picture of the difference between a model that quantifies its uncertainty and one that doesn't know it has any.</p>
+</section>
+
+<section>
+  <div class="eyebrow">Evidence</div>
+  <h2>Does the model actually work?</h2>
+  <div class="stats">
+    <div class="stat"><div class="bignum">78.3%</div><div class="cap">winners called correctly on 3,597 matches it had never seen</div></div>
+    <div class="stat"><div class="bignum">0.150</div><div class="cap">Brier score — probability quality. A coin flip scores 0.25</div></div>
+    <div class="stat"><div class="bignum">3</div><div class="cap">features built, tested, and deleted for not earning their place</div></div>
+  </div>
+  <table>
+    <thead><tr><th>Challenger</th><th>Brier</th><th>Accuracy</th></tr></thead>
+    <tbody>
+      <tr class="mine"><td>Logistic regression, 3 features (this model)</td><td>0.1499</td><td>78.3%</td></tr>
+      <tr><td>+ richer features</td><td>0.1501</td><td>78.4%</td></tr>
+      <tr><td>+ time-decay &amp; importance weights</td><td>0.1498</td><td>78.3%</td></tr>
+      <tr><td>XGBoost, everything included</td><td>0.1492</td><td>78.6%</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Four very different setups within 0.001 of each other. The ceiling comes from the data, not the algorithm — once the Elo gap is in, everything else is garnish.</p>
+</section>
+
+<section>
+  <div class="eyebrow">How to read this</div>
+  <h2>A forecast is not a pick</h2>
+  <p class="lede" style="font-size:15.5px">"Spain 53%" means Spain loses this tournament almost half the time. If they do, the forecast didn't fail — the less likely thing happened, which is most of what happens in football. And a wrinkle worth sitting with: Spain is the most likely <b>champion</b>, yet in the single most likely <b>final</b> (vs Argentina) the model has Argentina by a nose, 51.5 to 48.5. Both are true. Aggregated probability and single-path probability answer different questions, and confusing them is the most common way forecasts get misread — in sports and everywhere else.</p>
+</section>
+
+<footer>
+  Built by <b>Faria Tabassum</b> · full methodology, code, and three deleted features on <a href="https://github.com/fariat14" target="_blank" rel="noopener">GitHub</a> · data: martj42/international_results (CC0), through July 11, 2026<br><br>
+  Personal learning project, not betting advice. Probabilities are model output, not promises. © 2026 Faria Tabassum. All rights reserved.
+</footer>
+
+</div>
+<script>
+// matchup probabilities from the trained model (symmetrized), data through Jul 11
+const P = {
+  argBeatsEng: 0.628,
+  spainBeatsArg: 0.485,
+  spainBeatsEng: 0.614
+};
+
+function odds(scenario){
+  if(scenario === 'ARG')  return {Spain: P.spainBeatsArg, Argentina: 1-P.spainBeatsArg, England: 0};
+  if(scenario === 'ENG')  return {Spain: P.spainBeatsEng, England: 1-P.spainBeatsEng, Argentina: 0};
+  return {
+    Spain: P.argBeatsEng*P.spainBeatsArg + (1-P.argBeatsEng)*P.spainBeatsEng,
+    Argentina: P.argBeatsEng*(1-P.spainBeatsArg),
+    England: (1-P.argBeatsEng)*(1-P.spainBeatsEng)
+  };
+}
+
+function render(scenario){
+  const o = odds(scenario);
+  const teams = [
+    {name:'Spain', p:o.Spain},
+    {name:'Argentina', p:o.Argentina},
+    {name:'England', p:o.England},
+    {name:'France', p:0, dead:true, note:'out · third-place match'}
+  ].sort((a,b)=>b.p-a.p || (a.dead?1:-1));
+
+  const el = document.getElementById('odds');
+  el.innerHTML = teams.map(t=>{
+    const on = Math.round(t.p*100);
+    const ticks = Array.from({length:100},(_,i)=>`<div class="tick ${i<on?'on':'out'}"></div>`).join('');
+    return `<div class="oddsrow ${t.dead?'dead':''}">
+      <div class="team">${t.name}</div>
+      <div class="strip" role="img" aria-label="${t.name}: ${(t.p*100).toFixed(1)} percent">${ticks}</div>
+      <div class="pct">${(t.p*100).toFixed(1)}%${t.dead?`<small>${t.note}</small>`:''}</div>
+    </div>`;
+  }).join('');
+
+  const fl = document.getElementById('finalline');
+  if(scenario==='ARG') fl.innerHTML = `Final: <b>Spain vs Argentina</b>, July 19. The model makes Argentina a slight favorite, <b>51.5% to 48.5%</b> — even though Spain was the likelier champion overall. That's not a contradiction; it's conditioning.`;
+  else if(scenario==='ENG') fl.innerHTML = `Final: <b>Spain vs England</b>, July 19. Spain becomes a heavy favorite at <b>61.4%</b> — this easier path is exactly why Spain's overall title chance exceeds Argentina's.`;
+  else fl.innerHTML = `No pick made, so the model weighs both paths: 62.8% of simulated worlds get a <b>Spain–Argentina</b> final (where Argentina nicks it), 37.2% get <b>Spain–England</b> (where Spain cruises). Add them up and Spain leads the title race at <b>53.3%</b>.`;
+
+  document.getElementById('pickArg').setAttribute('aria-pressed', scenario==='ARG');
+  document.getElementById('pickEng').setAttribute('aria-pressed', scenario==='ENG');
+  document.getElementById('sf2state').textContent =
+    scenario===null ? 'Model-weighted' : 'Your scenario';
+  document.getElementById('oddstitle').textContent =
+    scenario===null ? 'Title chances, with Spain through to the final'
+    : scenario==='ARG' ? 'Title chances if Argentina reaches the final'
+    : 'Title chances if England reaches the final';
+}
+
+let current = null;
+function pick(s){ current = (current===s)?null:s; render(current); }
+render(null);
+</script>
+</body>
+</html>
