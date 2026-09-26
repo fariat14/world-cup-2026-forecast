@@ -10,7 +10,7 @@ Which, it turns out, is useful. I built this model and locked every prediction o
 
 So here's the question: **using nothing but historical match results, how well can you predict who wins a World Cup match? And where does that approach stop working?**
 
-*This is a personal learning project, not betting advice. I'm not a sports analyst. © 2026 Faria Tabassum. All rights reserved.*
+*This is a personal learning project, not betting advice. I'm not a sports analyst. © 2026 Faria T. All rights reserved.*
 
 ## What I Built, Short Version
 
@@ -198,4 +198,4 @@ A three-variable model built by someone who can't name a single formation called
 Most of the work in this project was figuring out what to leave out. I suspect that's true of more than just football models.
 
 ---
-© 2026 Faria Tabassum. All rights reserved. Not betting advice.
+© 2026 Faria T. All rights reserved. Not betting advice.
